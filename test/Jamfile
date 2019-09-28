@@ -1,0 +1,13 @@
+import testing ;
+
+project
+    : requirements
+    <include>..
+    <library>/boost/test//boost_unit_test_framework
+    <link>shared:<define>BOOST_TEST_DYN_LINK=1
+    ;
+
+
+build-project header ;
+build-project coordinate ;
+build-project units ;
