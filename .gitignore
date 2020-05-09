@@ -39,9 +39,12 @@
 /.idea
 /cmake-build-debug
 /x64/Debug
+/out
+
+# CMakeSettings File
+/CMakeSettings.json
 
 # Project files
-/include/boost/astronomy/coordinate/Source.cpp
 /testing
 /Debug
 /astronomy.vcxproj.user
