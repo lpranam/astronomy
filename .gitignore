@@ -52,5 +52,6 @@
 /astronomy.vcxproj
 /astronomy.sln
 *.user
+*.project
 /ClassDiagram.cd
 
