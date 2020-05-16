@@ -17,8 +17,19 @@
 
 #include <boost/astronomy/io/column.hpp>
 
-namespace boost { namespace astronomy { namespace io {
+/**
+ * @file    column_data.hpp
+ * @author  Pranam Lashkari
+ * @details Contains definition for column_data structure
+ */
 
+namespace boost { namespace astronomy { namespace io {
+/**
+ * @brief   Stores the collection of current field value for every row in the specified type.
+ * @details This class in addition to holding the current field information also stores
+ *          the current field value for every row in the table as a collection
+ * @tparam  Type Type for storing the field values
+*/
 template <typename Type>
 struct column_data: public column
 {
@@ -26,11 +37,20 @@ private:
     std::vector<Type> column_data_;
 
 public:
+    /**
+     * @brief   Returns the collection of current field value for every row in the table
+     * @return  A vector<Type> containing the field value for all rows
+     * @todo    Ask from sir why this function returns by value 
+    */
     std::vector<Type> get_data() const
     {
         return column_data_;
     }
 
+    /**
+     * @brief   Returns the collection of current field value for every row in the table
+     * @return  A vector<Type> containing the field value for all rows  
+    */
     std::vector<Type>& get_data()
     {
         return column_data_;
