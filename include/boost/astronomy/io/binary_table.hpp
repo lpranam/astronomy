@@ -50,10 +50,11 @@ public:
     */
     binary_table_extension(std::fstream &file) : table_extension(file)
     {
-        populate_column_data();
-        std::copy_n(std::istream_iterator<char>(file), naxis(1)*naxis(2), std::back_inserter(data));
+        set_binary_table_info(file);
         set_unit_end(file);
     }
+
+    
 
     /**
      * @brief       Constructs an binary_table_extension object from the given filestream and hdu object
@@ -65,8 +66,7 @@ public:
     */
     binary_table_extension(std::fstream &file, hdu const& other) : table_extension(file, other)
     {
-        populate_column_data();
-        std::copy_n(std::istream_iterator<char>(file), naxis(1)*naxis(2), std::back_inserter(data));
+        set_binary_table_info(file);
         set_unit_end(file);
     }
 
@@ -80,8 +80,7 @@ public:
     */
     binary_table_extension(std::fstream &file, std::streampos pos) : table_extension(file, pos)
     {
-        populate_column_data();
-        std::copy_n(std::istream_iterator<char>(file), naxis(1)*naxis(2), std::back_inserter(data));
+        set_binary_table_info(file);
         set_unit_end(file);
     }
 
@@ -175,7 +174,7 @@ public:
     */
     std::unique_ptr<column> get_column(std::string name) const
     {
-        for (auto col : col_metadata)
+        for (auto& col : col_metadata)
         {
             if (col.TTYPE() == name)
             {
@@ -185,7 +184,7 @@ public:
                     {
                     case 'L':
                     {
-                        auto result = std::make_unique<column_data<bool>>();
+                        auto result = std::make_unique<column_data<bool>>(col);
                         fill_column(result->get_data(), col.TBCOL(), column_size(col.TFORM()),
                             [](char const* element) -> bool {
                                 if (*element == 'T') return true;
@@ -196,7 +195,7 @@ public:
                     }
                     case 'X':
                     {
-                        auto result = std::make_unique<column_data<char>>();
+                        auto result = std::make_unique<column_data<char>>(col);
                         fill_column(result->get_data(), col.TBCOL(), column_size(col.TFORM()),
                             [](char const* element) -> char {
                                 return *element;
@@ -206,7 +205,7 @@ public:
                     }
                     case 'B':
                     {
-                        auto result = std::make_unique<column_data<std::uint8_t>>();
+                        auto result = std::make_unique<column_data<std::uint8_t>>(col);
                         fill_column(result->get_data(), col.TBCOL(), column_size(col.TFORM()),
                             [](char const* element) -> std::uint8_t {
                                 return static_cast<std::uint8_t>(*element);
@@ -216,7 +215,7 @@ public:
                     }
                     case 'I':
                     {
-                        auto result = std::make_unique<column_data<std::int16_t>>();
+                        auto result = std::make_unique<column_data<std::int16_t>>(col);
                         fill_column(result->get_data(), col.TBCOL(), column_size(col.TFORM()),
                             [](char const* element) -> std::int16_t {
                                 return boost::endian::big_to_native(*reinterpret_cast<const std::int16_t*>(element));
@@ -226,7 +225,7 @@ public:
                     }
                     case 'J':
                     {
-                        auto result = std::make_unique<column_data<std::int32_t>>();
+                        auto result = std::make_unique<column_data<std::int32_t>>(col);
                         fill_column(result->get_data(), col.TBCOL(), column_size(col.TFORM()),
                             [](char const* element) -> std::int32_t {
                                 return boost::endian::big_to_native(*reinterpret_cast<const std::int32_t*>(element));
@@ -236,7 +235,7 @@ public:
                     }
                     case 'A':
                     {
-                        auto result = std::make_unique<column_data<char>>();
+                        auto result = std::make_unique<column_data<char>>(col);
                         fill_column(result->get_data(), col.TBCOL(), column_size(col.TFORM()),
                             [](char const* element) -> char {
                                 return *element;
@@ -246,7 +245,7 @@ public:
                     }
                     case 'E':
                     {
-                        auto result = std::make_unique<column_data<float>>();
+                        auto result = std::make_unique<column_data<float>>(col);
                         fill_column(result->get_data(), col.TBCOL(), column_size(col.TFORM()),
                             [](char const* element) -> float {
                                 float result = (element[3] << 0) | (element[2] << 8) |
@@ -258,7 +257,7 @@ public:
                     }
                     case 'D':
                     {
-                        auto result = std::make_unique<column_data<double>>();
+                        auto result = std::make_unique<column_data<double>>(col);
                         fill_column(result->get_data(), col.TBCOL(), column_size(col.TFORM()),
                             [](char const* element) -> double {
                                 double result = (element[7] << 0) | (element[6] << 8) |
@@ -272,7 +271,7 @@ public:
                     }
                     case 'C':
                     {
-                        auto result = std::make_unique<column_data<std::complex<float>>>();
+                        auto result = std::make_unique<column_data<std::complex<float>>>(col);
                         fill_column(result->get_data(), col.TBCOL(), column_size(col.TFORM()),
                             [](char const* element) -> std::complex<float> {
                                 std::complex<float> result;
@@ -291,7 +290,7 @@ public:
                     }
                     case 'M':
                     {
-                        auto result = std::make_unique<column_data<std::complex<double>>>();
+                        auto result = std::make_unique<column_data<std::complex<double>>>(col);
                         fill_column(result->get_data(), col.TBCOL(), column_size(col.TFORM()),
                             [](char const* element) -> std::complex<double> {
                             std::complex<double> result;
@@ -314,7 +313,7 @@ public:
                     }
                     case 'P':
                     {
-                        auto result = std::make_unique<column_data<std::pair<std::int32_t, std::int32_t>>>();
+                        auto result = std::make_unique<column_data<std::pair<std::int32_t, std::int32_t>>>(col);
                         fill_column(result->get_data(), col.TBCOL(), column_size(col.TFORM()),
                             [](char const* element) -> std::pair<std::int32_t, std::int32_t> {
                                 auto x = boost::endian::big_to_native(*reinterpret_cast<const std::int32_t*>(element));
@@ -335,7 +334,7 @@ public:
                     {
                     case 'L':
                     {
-                        auto result = std::make_unique<column_data<std::vector<bool>>>();
+                        auto result = std::make_unique<column_data<std::vector<bool>>>(col);
                         fill_column(result->get_data(), col.TBCOL(), column_size(col.TFORM()),
                             [num_of_element](char const* element) -> std::vector<bool> {
                                 std::vector<bool> values;
@@ -352,7 +351,7 @@ public:
                     }
                     case 'X':
                     {
-                        auto result = std::make_unique<column_data<std::vector<char>>>();
+                        auto result = std::make_unique<column_data<std::vector<char>>>(col);
                         fill_column(result->get_data(), col.TBCOL(), column_size(col.TFORM()),
                             [num_of_element](char const* element) -> std::vector<char> {
                                 return std::vector<char>(element, element + num_of_element);
@@ -362,7 +361,7 @@ public:
                     }
                     case 'B':
                     {
-                        auto result = std::make_unique<column_data<std::vector<std::uint8_t>>>();
+                        auto result = std::make_unique<column_data<std::vector<std::uint8_t>>>(col);
                         fill_column(result->get_data(), col.TBCOL(), column_size(col.TFORM()),
                             [num_of_element](char const* element) -> std::vector<std::uint8_t> {
                                 return std::vector<std::uint8_t>(
@@ -375,7 +374,7 @@ public:
                     }
                     case 'I':
                     {
-                        auto result = std::make_unique<column_data<std::vector<std::int16_t>>>();
+                        auto result = std::make_unique<column_data<std::vector<std::int16_t>>>(col);
                         fill_column(result->get_data(), col.TBCOL(), column_size(col.TFORM()),
                             [num_of_element](char const* element) -> std::vector<std::int16_t> {
                                 std::vector<std::int16_t> values;
@@ -395,7 +394,7 @@ public:
                     }
                     case 'J':
                     {
-                        auto result = std::make_unique<column_data<std::vector<std::int32_t>>>();
+                        auto result = std::make_unique<column_data<std::vector<std::int32_t>>>(col);
                         fill_column(result->get_data(), col.TBCOL(), column_size(col.TFORM()),
                             [num_of_element](char const* element) -> std::vector<std::int32_t> {
                                 std::vector<std::int32_t> values;
@@ -415,7 +414,7 @@ public:
                     }
                     case 'A':
                     {
-                        auto result = std::make_unique<column_data<std::vector<char>>>();
+                        auto result = std::make_unique<column_data<std::vector<char>>>(col);
                         fill_column(result->get_data(), col.TBCOL(), column_size(col.TFORM()),
                             [num_of_element](char const* element) -> std::vector<char> {
                                 return std::vector<char>(element, element + num_of_element);
@@ -425,7 +424,7 @@ public:
                     }
                     case 'E':
                     {
-                        auto result = std::make_unique<column_data<std::vector<float>>>();
+                        auto result = std::make_unique<column_data<std::vector<float>>>(col);
                         fill_column(result->get_data(), col.TBCOL(), column_size(col.TFORM()),
                             [num_of_element](char const* element) -> std::vector<float> {
                                 std::vector<float> values(
@@ -449,7 +448,7 @@ public:
                     }
                     case 'D':
                     {
-                        auto result = std::make_unique<column_data<std::vector<double>>>();
+                        auto result = std::make_unique<column_data<std::vector<double>>>(col);
                         fill_column(result->get_data(), col.TBCOL(), column_size(col.TFORM()),
                             [num_of_element](char const* element) -> std::vector<double> {
                                 std::vector<double> values(
@@ -475,7 +474,7 @@ public:
                     }
                     case 'C':
                     {
-                        auto result = std::make_unique<column_data<std::vector<std::complex<float>>>>();
+                        auto result = std::make_unique<column_data<std::vector<std::complex<float>>>>(col);
                         fill_column(result->get_data(), col.TBCOL(), column_size(col.TFORM()),
                             [num_of_element](char const* element) -> std::vector<std::complex<float>> {
                                 std::vector<std::complex<float>> values;
@@ -499,7 +498,7 @@ public:
                     }
                     case 'M':
                     {
-                        auto result = std::make_unique<column_data<std::vector<std::complex<double>>>>();
+                        auto result = std::make_unique<column_data<std::vector<std::complex<double>>>>(col);
                         fill_column(result->get_data(), col.TBCOL(), column_size(col.TFORM()),
                             [num_of_element](char const* element) -> std::vector<std::complex<double>> {
                             std::vector<std::complex<double>> values;
@@ -523,7 +522,7 @@ public:
                     }
                     case 'P':
                     {
-                        auto result = std::make_unique<column_data<std::vector<std::pair<std::int32_t, std::int32_t>>>>();
+                        auto result = std::make_unique<column_data<std::vector<std::pair<std::int32_t, std::int32_t>>>>(col);
                         fill_column(result->get_data(), col.TBCOL(), column_size(col.TFORM()),
                             [num_of_element](char const* element) -> std::vector<std::pair<std::int32_t, std::int32_t>> {
                                 std::vector<std::pair<std::int32_t, std::int32_t>> values;
@@ -549,7 +548,7 @@ public:
             }
         }
 
-        std::unique_ptr<column>(nullptr);
+        return std::unique_ptr<column>(nullptr);
     }
 
     /**
@@ -660,6 +659,14 @@ private:
             column_container.emplace_back(lambda(this->data.data() + (i * naxis(1) + start)));
         }
     }
+private:
+    void set_binary_table_info(std::fstream& file)
+    {
+        populate_column_data();
+        std::copy_n(std::istream_iterator<char>(file), naxis(1) * naxis(2), std::back_inserter(data));
+
+    }
+
 };
 
 }}} //namespace boost::astronomy::io

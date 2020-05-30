@@ -41,7 +41,6 @@ struct column;
  * @author  Sarthak Singhal
  * @note    To learn more about HDU please refer
  *          <a href="http://archive.stsci.edu/fits/users_guide/node5.html#SECTION00320000000000000000">FITS</a>
- * @todo    Define a virtual destructor to avoid leaking memory for all subclasses
  */
 struct hdu
 {
@@ -244,6 +243,10 @@ public:
         file.seekg((file.tellg() + (2880 - (file.tellg() % 2880))));
     }
 
+    /**
+     * @brief       Virtual destructor allowing hdu to be a polymorphic base for derived classes
+    */
+    virtual ~hdu() {}
     virtual std::unique_ptr<column> get_column(std::string name) const
     {
         throw wrong_extension_type();

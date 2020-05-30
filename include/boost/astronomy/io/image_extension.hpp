@@ -44,26 +44,10 @@ public:
      * @brief       Constructs an image_extension object by reading the header information and data from the filestream
      * @param[in,out] file filestream set to open mode for reading
      * @note        After the reading the file pointer/cursor will be set to the end of logical HDU unit
-     * @todo        Why is std::accumulate passed with zero as the beginning?
     */
     image_extension(std::fstream &file) : extension_hdu(file)
     {
-        //read image according to dimension specified by naxis
-        switch (this->naxis())
-        {
-        case 0:
-            break;
-        case 1:
-            data.read_image(file, this->naxis(1), 1);
-            break;
-        case 2:
-            data.read_image(file, this->naxis(1), this->naxis(2));
-            break;
-        default:
-            data.read_image(file, this->naxis(1), std::accumulate(this->naxis_.begin()+ 1,
-                this->naxis_.end(), 0, std::multiplies<std::size_t>()));
-            break;
-        }
+        set_image_data(file);
         set_unit_end(file);
     }
 
@@ -74,26 +58,10 @@ public:
      * @param[in,out] file filestream set to open mode for reading
      * @param[in]   other HDU object from where the header information is read
      * @note        After the reading the file pointer/cursor will be set to the end of logical HDU unit
-     * @todo        Why is std::accumulate passed with zero as the beginning
     */
     image_extension(std::fstream &file, hdu const& other) : extension_hdu(file, other)
     {
-        //read image according to dimension specified by naxis
-        switch (this->naxis())
-        {
-        case 0:
-            break;
-        case 1:
-            data.read_image(file, this->naxis(1), 1);
-            break;
-        case 2:
-            data.read_image(file, this->naxis(1), this->naxis(2));
-            break;
-        default:
-            data.read_image(file, this->naxis(1), std::accumulate(this->naxis_.begin()+ 1,
-                this->naxis_.end(), 0, std::multiplies<std::size_t>()));
-            break;
-        }
+        set_image_data(file);
         set_unit_end(file);
     }
 
@@ -107,6 +75,11 @@ public:
     */
     image_extension(std::fstream &file, std::streampos pos) : extension_hdu(file, pos)
     {
+        set_image_data(file);
+        set_unit_end(file);
+    }
+private:
+    void set_image_data(std::fstream& file) {
         //read image according to dimension specified by naxis
         switch (this->naxis())
         {
@@ -119,12 +92,12 @@ public:
             data.read_image(file, this->naxis(1), this->naxis(2));
             break;
         default:
-            data.read_image(file, this->naxis(1), std::accumulate(this->naxis_.begin()+ 1,
-                this->naxis_.end(), 0, std::multiplies<std::size_t>()));
+            data.read_image(file, this->naxis(1), std::accumulate(this->naxis_.begin() + 1,
+                this->naxis_.end(), 1, std::multiplies<std::size_t>()));
             break;
         }
-        set_unit_end(file);
     }
+
 };
 
 }}} //namespace boost::astronomy::io
