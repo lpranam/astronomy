@@ -1,4 +1,9 @@
 foreach(_name
+        horizon_coord
+        galactic_coord
+        ecliptic_coord
+        equatorial_ra_coord
+        equatorial_ha_coord
         cartesian_representation
         cartesian_differential
         spherical_representation
