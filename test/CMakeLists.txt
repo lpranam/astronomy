@@ -4,4 +4,6 @@ add_subdirectory(coordinate)
 
 add_subdirectory(units)
 
+add_subdirectory(time)
+
 add_subdirectory(io)
