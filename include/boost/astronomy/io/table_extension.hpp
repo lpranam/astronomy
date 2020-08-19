@@ -11,6 +11,7 @@ file License.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 #include <cstddef>
 #include <fstream>
 #include <string>
+#include <boost/astronomy/io/hdu.hpp>
 #include <boost/astronomy/io/extension_hdu.hpp>
 #include <boost/astronomy/io/column.hpp>
 
@@ -26,7 +27,8 @@ namespace boost { namespace astronomy { namespace io {
  * @details The object of this structure stores header
  *          information and data of ASCII table extension or Binary Table Extension
 */
-struct table_extension : public extension_hdu
+template<typename CardPolicy>
+struct table_extension : public extension_hdu<CardPolicy>
 {
 protected:
     std::size_t tfields_;
@@ -47,7 +49,7 @@ public:
      *              information(metadata) of all the fields in the table
      * @param[in]   other hdu object containing the header information of the current extension HDU
     */
-    table_extension(header const& other) : extension_hdu(other)
+    table_extension(header<CardPolicy> const& other) : extension_hdu<CardPolicy>(other)
     {
         set_table_extension_info();
     }
@@ -56,14 +58,14 @@ public:
     /**
      * @brief Returns the header associated with the currently held primary hdu
     */
-    header get_header() const {
-        return hdu_header;
+    header<CardPolicy> get_header() const {
+        return this->hdu_header;
     }
 
     private:
     void set_table_extension_info() {
-        tfields_ = hdu_header.value_of<std::size_t>("TFIELDS");
-        col_metadata_.resize(tfields_);
+        this->tfields_ = this->hdu_header.template value_of<std::size_t>("TFIELDS");
+        this->col_metadata_.resize(this->tfields_);
     }
     
 };
