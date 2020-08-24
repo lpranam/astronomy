@@ -1,5 +1,6 @@
 /*=============================================================================
 Copyright 2019 Pranam Lashkari <plashkari628@gmail.com>
+Copyright 2020 Gopi Krishna Menon <krishnagopi487.github@outlook.com>
 
 Distributed under the Boost Software License, Version 1.0. (See accompanying
 file License.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
@@ -12,12 +13,6 @@ file License.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 #include <cstddef>
 
 #include <boost/static_assert.hpp>
-
-/**
- * @file    column.hpp
- * @author  Pranam Lashkari
- * @details Contains definition for column structure
- */
 
 namespace boost { namespace astronomy { namespace io {
 /**
@@ -38,6 +33,7 @@ private:
     std::string display;    //TDISP
     std::string dimension;   //TDIM
     std::string comment_;
+    std::size_t total_elem_field;  // ASCII table 0 
 
 public:
     /**
@@ -51,13 +47,33 @@ public:
      * @param[in]   tbcol Starting column of the current field value
      * @param[in]   tform The format in which the value of a field in encoded
     */
-    column(std::size_t tbcol, std::string tform): start(tbcol), format(tform) {}
+    column(std::size_t tbcol, std::string tform):
+        start(tbcol),
+        format(tform),
+        index_(-1),name(""),
+        unit(""),
+        scale(-1),
+        zero(-1),
+        display(""),
+        dimension(""),
+        comment_("")
+    {}
 
     /**
      * @brief       Constructs a column object and sets the format in which the value is encoded
      * @param[in]   tform The format in which the value of a field in encoded
     */
-    column(std::string tform) : format(tform) {}
+    column(std::string tform) :
+        start(-1),
+        format(tform),
+        index_(-1), name(""),
+        unit(""),
+        scale(-1),
+        zero(-1),
+        display(""),
+        dimension(""),
+        comment_("")
+    {}
 
     /**
      * @brief       Sets the index/position of a perticular field
@@ -250,9 +266,20 @@ public:
     }
 
     /**
-     * @brief       Allows column to acts as a polymorphic base for other class ( column_data)
+     * @brief Sets the total elements present in a perticular field
+     * @param[in] count Number of elements present in a perticular field
     */
-    virtual ~column() {}
+    void total_elements(std::size_t count) {
+        total_elem_field = count;
+    }
+
+    /**
+     * @brief Returns the total number of elements present in a perticular field
+    */
+    std::size_t total_elements() {
+        return total_elem_field;
+    }
+
 };
 
 }}}

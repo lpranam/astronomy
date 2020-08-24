@@ -10,11 +10,10 @@ file License.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 #define BOOST_ASTRONOMY_IO_DEFAULT_HDUS_HPP
 
 
-#include<boost/astronomy/io/hdu.hpp>
+#include<boost/astronomy/io/header.hpp>
 #include<boost/astronomy/io/primary_hdu.hpp>
 #include<boost/astronomy/io/binary_table.hpp>
 #include<boost/astronomy/io/ascii_table.hpp>
-#include<boost/astronomy/io/default_card_policy.hpp>
 #include<boost/variant.hpp>
 
 
@@ -22,21 +21,52 @@ file License.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 namespace boost { namespace astronomy {namespace io {
 
     /**
+     * @brief Visitor for writing the Header and Data of all types of HDU's
+     * @tparam FileWriter Type of writer object to write data to
+    */
+    template<typename FileWriter>
+    struct fits_writer_visitor :public boost::static_visitor<> {
+    private:
+        FileWriter& writer;
+    public:
+
+        /**
+         * @brief Constructs a visitor object with an associated file_writer to write data to
+         * @param[in,out] file_writer Object for facilitating the writing of data to the file
+        */
+        fits_writer_visitor(FileWriter& file_writer) :writer(file_writer) {}
+
+        /**
+         * @breif Special case ( Not to do anything )
+        */
+        void operator()(boost::blank) {}
+
+        /**
+         * @brief Calls the write_to function of given hdu to write data to the file_writer
+         * @tparam Hdu  Type of HDU
+         * @param[in] hdu Hdu object to call write_to
+        */
+        template<typename Hdu>
+        void operator()(Hdu& hdu) { hdu.write_to(writer); }
+    };
+
+    /**
      * @brief           Contains factory methods for constructing different type of HDU's
      * @author          Gopi Krishna Menon
      */
-
-    template<typename CardPolicy=card_policy>
+    template<typename CardPolicy,typename AsciiConverter,typename BinaryConverter>
     struct default_hdu_manager{
 
         typedef boost::variant<
             boost::blank,
-            basic_primary_hdu<CardPolicy>,   
-            basic_binary_table_extension<CardPolicy>,
-            basic_ascii_table<CardPolicy>
+            basic_primary_hdu<CardPolicy,BinaryConverter>,   
+            basic_binary_table_extension<CardPolicy,BinaryConverter>,
+            basic_ascii_table<CardPolicy,AsciiConverter>
 
         >  Extension;
 
+        template<typename FileWriter>
+        using writer_visitor = fits_writer_visitor<FileWriter>;
         typedef header<CardPolicy> header_type;
 
         /**
@@ -62,8 +92,8 @@ namespace boost { namespace astronomy {namespace io {
         */
         static Extension generate_extension_hdu(header<CardPolicy>& hdu_header, const std::string& data_buffer) {
             std::string extension_name = hdu_header.template value_of<std::string>("XTENSION");
-            if (extension_name == "TABLE") { return basic_ascii_table<CardPolicy>(hdu_header, data_buffer); }
-            else if (extension_name == "BINTABLE") { return basic_binary_table_extension<CardPolicy>(hdu_header, data_buffer); }
+            if (extension_name == "TABLE") { return basic_ascii_table<CardPolicy, AsciiConverter>(hdu_header, data_buffer); }
+            else if (extension_name == "BINTABLE") { return basic_binary_table_extension<CardPolicy,BinaryConverter>(hdu_header, data_buffer); }
             else { return boost::blank{}; }
         }
 
@@ -74,7 +104,7 @@ namespace boost { namespace astronomy {namespace io {
         */
         static Extension generate_primary_hdu(header<CardPolicy>& prime_header, const std::string& buffer) {
             Extension prime_hdu;
-            prime_hdu = basic_primary_hdu<CardPolicy>(prime_header, buffer);
+            prime_hdu = basic_primary_hdu<CardPolicy,BinaryConverter>(prime_header, buffer);
             return prime_hdu;
         }
     };

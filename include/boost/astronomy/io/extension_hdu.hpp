@@ -13,7 +13,7 @@ file License.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 #include <vector>
 #include <cstddef>
 
-#include <boost/astronomy/io/hdu.hpp>
+#include <boost/astronomy/io/header.hpp>
 
 namespace boost { namespace astronomy { namespace io {
 
@@ -43,7 +43,7 @@ public:
      * @brief     Constructs an extention_hdu from the hduobject passed as an argument
      * @details   This constructor accepts a hdu_object as argument and creates a extention_hdu
      *            by copying the header information from hdu_object
-     * @param[in] other hdu object containing the header information
+     * @param[in] other Header information
     */
     extension_hdu(header<CardPolicy> const& other) :hdu_header(other)
     {

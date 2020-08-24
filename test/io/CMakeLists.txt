@@ -1,5 +1,5 @@
 foreach(_name
-        t_hdu
+        t_header
         t_card
         t_primary_hdu
         t_ascii_table
@@ -9,6 +9,7 @@ foreach(_name
         t_fits_reader
         t_data_conversions
         t_card_policy
+        t_string_conversions
        )
     set(_target test_fits_${_name})
 
