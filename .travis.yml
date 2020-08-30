@@ -61,7 +61,6 @@ anchors:
                                            "libc++-dev",
                                            "libstdc++-8-dev" ], sources: [ "llvm-toolchain-xenial-8",
                                                                            "ubuntu-toolchain-r-test"   ] } }
-  gcc-49:   &gcc-49   { apt: { packages: [ "g++-4.9"         ], sources: [ "ubuntu-toolchain-r-test"   ] } }
   gcc-5:    &gcc-5    { apt: { packages: [ "g++-5"           ]                                           } }
   gcc-6:    &gcc-6    { apt: { packages: [ "g++-6"           ], sources: [ "ubuntu-toolchain-r-test"   ] } }
   gcc-7:    &gcc-7    { apt: { packages: [ "g++-7"           ], sources: [ "ubuntu-toolchain-r-test"   ] } }
@@ -75,8 +74,6 @@ jobs:
 
   include:
     # libstdc++
-    - { os: "linux", dist: "trusty",  # xenial has libstdc++ from gcc 5.4.0 with newer ABI
-                     env: [ "B2_TOOLSET=gcc-4.9",     "B2_CXXSTD=14"    ], addons: *gcc-49    }
     - { os: "linux", env: [ "B2_TOOLSET=gcc-5",       "B2_CXXSTD=14"    ], addons: *gcc-5     }
     - { os: "linux", env: [ "B2_TOOLSET=gcc-6",       "B2_CXXSTD=14"    ], addons: *gcc-6     }
     - { os: "linux", env: [ "B2_TOOLSET=gcc-7",       "B2_CXXSTD=14,17"    ], addons: *gcc-7     }
