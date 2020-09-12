@@ -10,7 +10,7 @@ file License.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 
 #include <tuple>
 #include <cmath>
-
+#include <boost/geometry.hpp>
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/algorithms/transform.hpp>

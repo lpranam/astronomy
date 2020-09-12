@@ -11,6 +11,7 @@ file License.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 #include <cstddef>
 #include <type_traits>
 #include <boost/static_assert.hpp>
+#include <boost/geometry.hpp>
 #include <boost/geometry/core/cs.hpp>
 #include <boost/units/get_dimension.hpp>
 #include <boost/geometry/geometries/point.hpp>

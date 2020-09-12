@@ -12,7 +12,7 @@ file License.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 
 #include <tuple>
 #include <type_traits>
-
+#include <boost/geometry.hpp>
 #include <boost/geometry/strategies/strategy_transform.hpp>
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/geometries/point.hpp>
