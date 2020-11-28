@@ -9,9 +9,8 @@ file License.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 #ifndef BOOST_ASTRONOMY_IO_FITS_READER_HPP
 #define BOOST_ASTRONOMY_IO_FITS_READER_HPP
 
-#include <vector>
+#include <deque>
 #include <string>
-#include <stdexcept>
 #include <map>
 
 #include <boost/astronomy/io/header.hpp>
@@ -59,7 +58,7 @@ namespace boost { namespace astronomy { namespace io {
     struct fits_io {
     private:
         FileReader file_reader;
-        std::vector<typename ExtensionsSupported::Extension> hdu_list;
+        std::deque<typename ExtensionsSupported::Extension> hdu_list;
         control_block hdus_control_block;
     public:
         /**
@@ -162,14 +161,14 @@ namespace boost { namespace astronomy { namespace io {
         /**
          * @brief Returns the list of hdu objects associated with a FITS file
         */
-        std::vector<typename ExtensionsSupported::Extension> get_hdu_list() {
+        std::deque<typename ExtensionsSupported::Extension> get_hdu_list() const {
             return hdu_list;
         }
 
         /**
          * @brief Returns the control block containing the hdu cache information
         */
-        control_block get_control_block_info() {
+        control_block get_control_block_info() const {
             return hdus_control_block;
         }
 
